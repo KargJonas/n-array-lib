@@ -1,10 +1,19 @@
 class NArray extends Array {
+  static neighborOffsets = [
+    [[-1], [1]],
+    [[-1, 0], [0, -1], [1, 0], [0, 1]],
+  ];
+
   constructor(shape) {
     const length = shape
       .reduce((product, factor) => product * factor);
 
     super(length);
     this.shape = shape;
+  }
+
+  static fromNested() {
+    
   }
 
   getIndex(location) {
@@ -26,8 +35,19 @@ class NArray extends Array {
   set(location, value) {
     return this[this.getIndex(location)] = value;
   }
+
+  getNeighbors(location, offsets) {
+    // this.map((item, index) => {
+    //   const 
+    // });
+  }
 }
 
-const arr = new NArray([4, 4, 4, 4]);
-arr.set([1, 2, 3, 1], 10);
-console.log(arr.get([1, 2, 3, 1]));
+
+const shape = new Vector(4, 4, 4, 4);
+const arr = new NArray(shape);
+
+const p = new Vector(0, 1, 2, 3);
+
+arr.set(p, 10);
+console.log(arr.get(p));
