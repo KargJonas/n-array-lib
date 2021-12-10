@@ -1,19 +1,23 @@
 class NArray extends Array {
-  static neighborOffsets = [
-    [[-1], [1]],
-    [[-1, 0], [0, -1], [1, 0], [0, 1]],
-  ];
-
-  constructor(shape) {
+  constructor(shape, data) {
     const length = shape
       .reduce((product, factor) => product * factor);
 
     super(length);
+    if (data?.length) this.setAll(data.flat(Infinity));
+
     this.shape = shape;
+    this.dimensions = shape.length;
+    this.neighborOffsets = this.getNeighborOffsets();
   }
 
-  static fromNested() {
-    
+  *cartesianProduct([head, ...tail]) {
+    const remainder = tail.length ? cartesianProduct(tail) : [[]];
+    for (let r of remainder) for (let h of head) yield [h, ...r];
+  }
+
+  static fromNested(shape, data) {
+    return new NArray(shape, data.flat(Infinity));
   }
 
   getIndex(location) {
@@ -28,6 +32,27 @@ class NArray extends Array {
       sum + (component * offsets[i]), 0);
   }
 
+  getNeighborOffsets() {
+    const offsets1D = Array(this.dimensions).fill([-1, 0, 1]);
+    return [...this.cartesianProduct(offsets1D)]
+      .filter(neighbor => !neighbor.every(d => d === 0));
+  }
+
+  getNeighbors(location) {
+    const neighbors = this.neighborOffsets.map((neighbor) => {
+      const neighborLocation = neighbor
+        .map((value, index) => (value + location[index]));
+      
+      return this.get(neighborLocation);
+    });
+
+    return neighbors;
+  }
+
+  addArray(other) {
+    other.map((element, index) => this[index] += element);
+  }
+
   get(location) {
     return this[this.getIndex(location)];
   }
@@ -36,18 +61,26 @@ class NArray extends Array {
     return this[this.getIndex(location)] = value;
   }
 
-  getNeighbors(location, offsets) {
-    // this.map((item, index) => {
-    //   const 
-    // });
+  setAll(data) {
+    data.map((value, index) => this[index] = value);
   }
 }
 
 
-const shape = new Vector(4, 4, 4, 4);
+// const shape = new Vector(4, 4, 4, 4);
+// const arr = new NArray(shape);
+
+// arr.set([0, 0, 0, 0], 1);
+// arr.set([0, 1, 0, 0], 1);
+
+// console.log(arr.getNeighbors(new Vector(1, 1, 1, 1)));
+
+const shape = new Vector(10, 10);
 const arr = new NArray(shape);
 
-const p = new Vector(0, 1, 2, 3);
+console.log(arr)
 
-arr.set(p, 10);
-console.log(arr.get(p));
+arr.set([0, 0], 1);
+arr.set([0, 1], 1);
+
+console.log(arr.getNeighbors(new Vector(1, 1)));

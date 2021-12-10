@@ -23,13 +23,16 @@
 //   for (let r of remainder) for (let h of head) yield [h, ...r];
 // }
 
-function* cartesian([head, ...tail]) {
-  let remainder = tail.length ? cartesian(tail) : [[]];
+function* cartesianProduct([head, ...tail]) {
+  const remainder = tail.length ? cartesianProduct(tail) : [[]];
   for (let r of remainder) for (let h of head) yield [h, ...r];
 }
 
-// Example:
-const first  = [-1, 1];
-const second = [-1, 1];
+function findNeighbors(dimensions) {
+  // Offsets for each of the spacial components
+  const offsets = Array(dimensions).fill([-1, 0, 1]);
+  const neighbors = [...cartesianProduct(offsets)]
+    .filter(neighbor => !neighbor.every(d => d === 0));
 
-console.log(Array.from(cartesian([first, second])));
+  return neighbors;
+}
